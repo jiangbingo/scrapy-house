@@ -1,0 +1,114 @@
+class AddView():
+    """
+        添加楼盘信息
+    """
+    @classmethod
+    def add(cls, request):
+        fd = open(os.path.join(sys.path[0], "data.json"))
+        data = fd.read()
+        fd.close()
+        data = json.loads(data)
+        count = 0
+        for i in data:
+            city_name = i["city"]
+            city = City.objects.filter(fullname__contains=city_name).first()
+            if city:
+                p = Pinyin()
+                name = i.get("name", None)
+                no = '%s%s' % (city.phone_code, p.get_initials(name, u''))
+                pro = Property(name=name, province=city.province, address=i.get("sldz", None), no=no,
+                               build_type=i.get("jzlb", None), property_manufactor=i.get("wygs", None), type=0,
+                               develop_manufactor=i.get("kfs", None), city=city)
+                avg_price = i.get("fj", None)
+                try:
+                    volume_ratio = i.get("rjl", None)
+                    if volume_ratio:
+                        ratio = re.findall(r"([0-9\.]+)", volume_ratio)
+                        if len(ratio) > 0:
+                            pro.volume_ratio = float(ratio[0])
+                        else:
+                            pro.volume_ratio = 0
+                    else:
+                        pro.volume_ratio = 0
+                    if avg_price:
+                        price = re.findall(r"(\d{1,8}元)", avg_price)
+                        if len(price) > 0:
+                            pro.avg_price = int(price[0])
+                        else:
+                            pro.avg_price = 10000
+                    else:
+                        pro.avg_price = 10000
+                    kpsj = cls._get_date(i.get("kpsj", None))
+                    if kpsj:
+                        pro.open_time = datetime.date(int(kpsj[0]), int(kpsj[1]), int(kpsj[2]))
+                    jfsj = cls._get_date(i.get("jfsj", None))
+                    if jfsj:
+                        print "jfsj", jfsj
+                        pro.deliver_date = datetime.date(int(jfsj[0]), int(jfsj[1]), int(jfsj[2]))
+                    lhl = i.get("lhl", None)
+                    if lhl:
+                        lll = re.findall(r"\d{1,2}", lhl)
+                        if len(lll) > 0:
+                            lhl = int(lll[0])/100.0
+                            pro.greening_rate = lhl
+                        else:
+                            pro.greening_rate = 0
+                    else:
+                        pro.greening_rate = 0
+                    if hasattr(city, "areas"):
+                        pro.area = city.areas.first()
+                    property_price = i.get("wyf", None)
+                    if property_price:
+                        price = property_price.split("元".decode("utf-8"))
+                        if len(price) > 1:
+                            pro.property_price = float(price[0])
+                        else:
+                            pro.property_price = 0
+                    else:
+                        pro.property_price = 0
+                    property_right_limit = i.get("cqnx", "")
+                    if property_right_limit.isdigit():
+                        pro.property_right_limit = int(property_right_limit)
+                    pro.save()
+                    base_path = "D:\\Code\\Test\\scrapy\\tutorial\\imgs"
+                    dir_path = os.path.join(base_path, i["type_name"], i["city"], i["url"])
+                    config_path = os.path.join(dir_path, "config.txt")
+                    if os.path.exists(config_path):
+                        # import ipdb;ipdb.set_trace()
+                        fd = open(config_path, "r")
+                        config_data = json.loads(fd.read())
+                        fd.close()
+                        img_name = config_data["img_name"] + ".jpg"
+                        img_path = os.path.join(dir_path, img_name)
+                        if os.path.exists(img_path):
+                            img_online_path = "apartment/{0}/{1}/{2}/{3}".format(i["type_name"], i["city"],
+                                                                                        i["url"], img_name)
+                            apartment_no = '%s0%s' % (pro.no, 1)
+                            rooms = re.findall(r"([\d])", config_data.get("type"))
+                            print "rooms", rooms
+                            Apartment(property=pro, no=1, apartment_no=apartment_no,
+                                      name=config_data.get("apartment_name"), acreage=config_data.get("jzmj", 0),
+                                      room_count=rooms[0], hall_count=rooms[1], kitchen_count=rooms[2],
+                                      restroom_count=rooms[3], preview=img_online_path, height=0).save()
+
+                    count += 1
+                    if count >= 2000:
+                        return
+                    print "ok"
+                except Exception, e:
+                    print "!!!!!!!!!!!!!!!", e
+
+    @staticmethod
+    def _get_date(date_str):
+        if date_str:
+            date_str = re.findall(r"(\d{4})" + "年".decode("utf-8") + "(\d{1,2})" + "月".decode("utf-8")
+                                  + "(\d{0,2})", date_str)
+            if len(date_str) > 0:
+                date_str = date_str[0]
+                if date_str[2] == "":
+                    date_str = (date_str[0], date_str[1], 1)
+                return date_str
+            else:
+                return False
+        else:
+            return False
