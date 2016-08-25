@@ -28,6 +28,7 @@ class DmozSpider(scrapy.Spider):
             sel = city_urls[i]
             if sel != self.start_urls[0] and sel[-3:] != "txt":
                 response.meta["city"] = city_names[i].strip()
+                import ipdb;ipdb.set_trace()
                 yield scrapy.Request(sel.strip(), callback=self.second_parse, dont_filter=True,
                                      meta=response.meta.copy())
 
@@ -83,7 +84,8 @@ class DmozSpider(scrapy.Spider):
                     if page_url in href:
                         new_page_url = response.urljoin(href)
                         if new_page_url[-3:] != "txt":
-                            yield scrapy.Request(new_page_url.strip(), self.detail_page_parse, dont_filter=True,
+                            yield scrapy.Request(new_page_url.strip(), self.detail_page_parse,
+                                                 dont_filter=True,
                                                  meta=response.meta.copy())
 
     def detail_page_parse(self, response):
@@ -109,7 +111,8 @@ class DmozSpider(scrapy.Spider):
                                         city, url.split("/")[2])
                 if not os.path.exists(dir_name):
                     response.meta["dir_name"] = dir_name
-                    yield scrapy.Request(url, self.find_img_page_parse, dont_filter=True, meta=response.meta.copy())
+                    yield scrapy.Request(url, self.find_img_page_parse, dont_filter=True,
+                                         meta=response.meta.copy())
 
     def find_img_page_parse(self, response):
         """
@@ -142,6 +145,7 @@ class DmozSpider(scrapy.Spider):
                 return
             try:
                 mo = md5()
+
                 mo.update(names[0].encode("utf-8"))
                 img_name = mo.hexdigest()
                 dir_name = response.meta["dir_name"]
@@ -172,7 +176,8 @@ class DmozSpider(scrapy.Spider):
                 fd.close()
                 url = img_urls[0].replace("124x82", "880x578")
                 response.meta["img_name"] = img_name
-                yield scrapy.Request(url.strip(), self.load_img, dont_filter=True, meta=response.meta.copy())
+                yield scrapy.Request(url.strip(), self.load_img,
+                                     dont_filter=True, meta=response.meta.copy())
             except:
                 import ipdb;ipdb.set_trace()
         else:
