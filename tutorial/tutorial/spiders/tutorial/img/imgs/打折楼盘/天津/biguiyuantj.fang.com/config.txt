@@ -1,0 +1,1 @@
+{"apartment_name": "Y008Tb", "zj": "94.50", "jzmj": "105.00", "hxfb": "\u501a\u6d9b\u5ead\u966221#,\u501a\u6d9b\u5ead\u966222#", "jj": "9000.00", "img_name": "e9c0c10d1e9546b4a4e23498ae5ec670", "type": "2\u5ba42\u53851\u53a81\u536b"}

@@ -28,7 +28,7 @@ class DmozSpider(scrapy.Spider):
             sel = city_urls[i]
             if sel != self.start_urls[0] and sel[-3:] != "txt":
                 response.meta["city"] = city_names[i].strip()
-                import ipdb;ipdb.set_trace()
+                # import ipdb;ipdb.set_trace()
                 yield scrapy.Request(sel.strip(), callback=self.second_parse, dont_filter=True,
                                      meta=response.meta.copy())
 
@@ -43,6 +43,7 @@ class DmozSpider(scrapy.Spider):
         # 新房分类url
         type_urls = div_list[3].xpath("div[@class='listBox']/ul//li/a/@href").extract()[:5]
         type_names = div_list[3].xpath("div[@class='listBox']/ul//li/a/text()").extract()[:5]
+        # import ipdb;ipdb.set_trace()
         for i in range(len(type_names)):
             url = type_urls[i]
             response.meta["type"] = type_names[i].strip()

@@ -1,0 +1,1 @@
+{"apartment_name": "\u522b\u5885E\u6237\u578b\u9996\u5c42\u6237\u578b\u56fe", "zj": "\u5f85\u5b9a", "jzmj": "165.65", "hxfb": "--", "jj": "\u5f85\u5b9a", "img_name": "0f255cb1574eac41f31a0fd5116cdaab", "type": "1\u5ba42\u53851\u53a81\u536b"}
