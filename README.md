@@ -7,6 +7,8 @@ token 7gLdKx8nUnLn1Q2sUiSwAl5KxZ6Ys2iK
 scrapy crawl dmoz -s JOBDIR=tutorial/dmoz -o data.json
 scrapy crawl img -s JOBDIR=tutorial/img
 
+<!-- property -->
+
 name = scrapy.Field()           //楼盘名称
 location = scrapy.Field()       //楼盘位置
 url = scrapy.Field()            //原网址
